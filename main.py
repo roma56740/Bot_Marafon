@@ -185,12 +185,20 @@ def handle_day_done(message):
 
 @bot.message_handler(func=lambda message: message.text == '🔙 Назад')
 def back_to_menu(message):
+    user_id = str(message.chat.id)
+    current_day = user_progress.get(user_id, 0)
+
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("✅ Выполнил(а)"))
+    
+    # Если пользователь не завершил текущий день — показать кнопку "Выполнил(а)"
+    if current_day < len(course_days):  # или добавь своё условие
+        markup.add(types.KeyboardButton("✅ Выполнил(а)"))
+    
     markup.add(types.KeyboardButton("📖 Открытые дни"), types.KeyboardButton("❓ Помощь"))
+
     msg = bot.send_message(message.chat.id, "🔁 Переход в меню...", reply_markup=markup)
 
-    # Удалить сообщение через 3 секунды, не блокируя поток
+    # Удалить сообщение через 3 секунды
     def delete_msg():
         try:
             bot.delete_message(message.chat.id, msg.message_id)
